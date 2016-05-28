@@ -1,0 +1,6 @@
+*.pyc
+*.swp
+*.egg-info
+PLE/docs/_build
+PLE/docs/_templates
+PLE/examples/*.png
