@@ -1,4 +1,4 @@
-from ple.games.flappybird import FlappyBird
+from ple.games.minion import FlappyBird
 from ple import PLE
 
 # local imports
