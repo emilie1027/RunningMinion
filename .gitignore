@@ -1,6 +1,7 @@
 *.pyc
 *.swp
 *.egg-info
+*.log
 .DS_Store
 .idea
 PLE/docs/_build

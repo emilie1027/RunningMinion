@@ -392,11 +392,11 @@ class FlappyBird(base.PyGameWrapper):
                 top_pipe_check = ((self.player.pos_y - self.player.height/2) <= h.gap_start)
                 bot_pipe_check = ((self.player.pos_y + self.player.height) > h.gap_start+self.pipe_gap)
 
-                if top_pipe_check:
-                    self.lives -= 1
+                # if top_pipe_check:
+                #     self.lives -= 1
 
-                if bot_pipe_check:
-                    self.lives -= 1
+                # if bot_pipe_check:
+                #     self.lives -= 1
 
             #is it past the player?
             if (p.x - p.width/2) <= self.player.pos_x < (p.x - p.width/2 + 4):
@@ -406,13 +406,22 @@ class FlappyBird(base.PyGameWrapper):
             if p.x < -p.width:
                 self._generatePipes(offset=self.width*0.2, pipe=p)
 
-        #fell on the ground
-        if self.player.pos_y >= 0.79*self.height - self.player.height:
+        # fell on the ground
+        # if self.player.pos_y >= 0.79*self.height - self.player.height:
+        #     self.lives -= 1
+
+        # #went above the screen
+        # if self.player.pos_y < -self.player.height:
+        #     self.lives -= 1
+
+        # harder version
+        if self.player.pos_y >= 300: #0.79*512 - 3*24 300
             self.lives -= 1
 
-        #went above the screen
-        if self.player.pos_y < -self.player.height:
+        # went above the screen
+        if self.player.pos_y <= 200: # 24
             self.lives -= 1
+
 
         self.player.update(dt)
         self.pipe_group.update(dt)

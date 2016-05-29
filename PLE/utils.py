@@ -186,7 +186,7 @@ def loop_play_forever(env, agent):
     try:
         # slow it down
         env.display_screen = True
-        env.force_fps = False
+        #env.force_fps = False
 
         while True:
             agent.start_episode()

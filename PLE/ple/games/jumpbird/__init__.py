@@ -30,7 +30,7 @@ class BirdPlayer(pygame.sprite.Sprite):
         
         #all in terms of y
         self.vel = 0 
-        self.FLAP_POWER = 12*self.scale
+        self.FLAP_POWER = 20*self.scale
         self.MAX_DROP_SPEED = 10.0
         self.GRAVITY = 1.0*self.scale
 
@@ -129,7 +129,7 @@ class Pipe(pygame.sprite.Sprite):
         
         #top_bottom = gap_start-self.upper_pipe.get_height()
         bottom_top = (gap_start+gap_size)*1.5
-        
+        self.y_top = bottom_top
         #self.image.blit(self.upper_pipe, (0, top_bottom ))
         #self.image.blit(self.lower_pipe, (0, bottom_top ))
         self.image.blit(self.obstacle,(0, bottom_top))
@@ -410,32 +410,36 @@ class FlappyBird(base.PyGameWrapper):
         self._handle_player_events()
 
         for p in self.pipe_group:
-            hit = pygame.sprite.spritecollide(self.player, self.pipe_group, False)
-            for h in hit:    #do check to see if its within the gap.
-                top_pipe_check = ((self.player.pos_y - self.player.height/2) <= h.gap_start)
-                bot_pipe_check = ((self.player.pos_y + self.player.height) > h.gap_start+self.pipe_gap)
+            # hit = pygame.sprite.spritecollide(self.player, self.pipe_group, False)
+            # for h in hit:    #do check to see if its within the gap.
+            #     top_pipe_check = ((self.player.pos_y - self.player.height/2) <= h.gap_start)
+            #     bot_pipe_check = ((self.player.pos_y + self.player.height) > h.gap_start+self.pipe_gap)
 
-                if top_pipe_check:
-                    self.lives = 1
+            #     if top_pipe_check:
+            #         self.lives = 1
 
-                if bot_pipe_check:
-                    self.lives = 1
+            #     if bot_pipe_check:
+            #         self.lives = 1
+
 
             #is it past the player?
             if (p.x - p.width/2) <= self.player.pos_x < (p.x - p.width/2 + 4):
+                if self.player.pos_y > p.y_top:
+                    self.lives-=1
+                    break
                 self.score += self.rewards["positive"]
 
             #is out out of the screen?
             if p.x < -p.width:
                 self._generatePipes(offset=self.width*0.2, pipe=p)
 
-        #fell on the ground
-        if self.player.pos_y >= 0.79*self.height - self.player.height:
-            self.lives = 1
+        # #fell on the ground
+        # if self.player.pos_y >= 0.79*self.height - self.player.height:
+        #     self.lives = 1
 
-        #went above the screen
-        if self.player.pos_y < -self.player.height:
-            self.lives = 1
+        # #went above the screen
+        # if self.player.pos_y < -self.player.height:
+        #     self.lives = 1
 
         self.player.update(dt)
         self.pipe_group.update(dt)
