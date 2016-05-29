@@ -10,12 +10,11 @@ import agent
 
 def process_state(state):
     state = np.array([state.values()])
-    state = state[0, 0:4]
+    # state = state[0, 0:4]
 
-
-    max_values = np.array([300.0, 40.0, 300.0, 200.0])
+    max_values = np.array([288.0, 50.0, 288.0, 512.0, 512.0, 288, 512.0, 512.0])
     state = state / max_values
-    print state
+    # print state
 
     return state
 
@@ -39,7 +38,7 @@ def init_agent(env):
 def main():
     # training parameters
     num_epochs = 15
-    num_steps_train = 15000  # steps per epoch of training
+    num_steps_train = 3000  # steps per epoch of training
     num_steps_test = 3000
     update_frequency = 4  # step frequency of model training/updates
 
@@ -54,7 +53,7 @@ def main():
 
 
     game = FlappyBird()
-    env = PLE(game, fps=30, display_screen=True, state_preprocessor=process_state)
+    env = PLE(game, fps=30, display_screen=True, force_fps = True, state_preprocessor=process_state)
     myAgent = init_agent(env)
 
     memory = utils.ReplayMemory(max_memory_size, min_memory_size)
@@ -99,10 +98,10 @@ def main():
         losses, rewards = [], []
 
         # display the screen
-        env.display_screen = True
+        # env.display_screen = True
 
         # slow it down so we can watch it fail!
-        env.force_fps = False
+        # env.force_fps = True
 
         # testing loop
         while steps < num_steps_test:
@@ -117,8 +116,8 @@ def main():
                 steps += 1
 
                 # done watching after 500 steps.
-                if steps > 500:
-                    env.force_fps = True
+                # if steps > 500:
+                    # env.force_fps = True
                     # env.display_screen = False
 
             if num_episodes % 5 == 0:
