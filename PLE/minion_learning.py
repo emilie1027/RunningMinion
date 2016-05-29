@@ -5,7 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # PLE imports
-from ple.games.minion import FlappyBird
+#from ple.games.minion import FlappyBird
+from ple.games.jumpbird import FlappyBird
 from ple import PLE
 from six.moves import cPickle
 

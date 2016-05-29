@@ -23,7 +23,7 @@ agent = TestAgent(p.getActionSet())
 
 p.init()
 reward = 0.0
-nb_frames = 1000
+nb_frames = 500
 
 for i in range(nb_frames):
 	if p.game_over():
