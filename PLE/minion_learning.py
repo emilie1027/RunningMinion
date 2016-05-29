@@ -30,6 +30,7 @@ def init_agent(env):
 
     # myAgent = naive.NaiveAgent(allowed_actions=env.getActionSet())
     myAgent = agent.Agent(env, batch_size, num_frames, frame_skip, lr, discount, rng, optimizer="sgd_nesterov")
+    # myAgent = utils.DQNAgent(env, batch_size, num_frames, frame_skip, lr, discount, rng, optimizer="sgd_nesterov")
     myAgent.build_model()
 
     return myAgent
@@ -92,7 +93,7 @@ def main():
             num_episodes += 1
             myAgent.end_episode()
 
-        print "\nTrain Epoch {:02d}: Epsilon {:0.4f} | Avg. Loss {:0.3f} | Avg. Reward {:0.3f}".format(epoch, epsilon, np.mean(losses), np.sum(rewards) / num_episodes)
+        print "Train Epoch {:02d}: Epsilon {:0.4f} | Avg. Loss {:0.3f} | Avg. Reward {:0.3f}\n".format(epoch, epsilon, np.mean(losses), np.sum(rewards) / num_episodes)
 
         steps, num_episodes = 0, 0
         losses, rewards = [], []
@@ -127,8 +128,11 @@ def main():
             num_episodes += 1
             myAgent.end_episode()
 
-        print "Test Epoch {:02d}: Best Reward {:0.3f} | Avg. Reward {:0.3f}".format(epoch, np.max(rewards), np.sum(rewards) / num_episodes)
+        print "Test Epoch {:02d}: Best Reward {:0.3f} | Avg. Reward {:0.3f}\n".format(epoch, np.max(rewards), np.sum(rewards) / num_episodes)
 
+
+    print "\nTraining complete. Will loop forever playing!"
+    utils.loop_play_forever(env, myAgent)
 
 
 if __name__ == '__main__':
