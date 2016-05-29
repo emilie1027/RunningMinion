@@ -1,10 +1,13 @@
+import os
 import logging
+import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
 # PLE imports
 from ple.games.minion import FlappyBird
 from ple import PLE
+from six.moves import cPickle
 
 # local imports
 import utils
@@ -40,40 +43,58 @@ def init_agent(env):
     return my_agent
 
 
-def plot_figure(data, label, name):
+def plot_figure(fig_path, data, label, name):
     plt.plot(data)
 
     plt.xlabel('episode')
     plt.ylabel(label)
     # plt.title('title')
     # plt.grid(True)
-    plt.savefig('../figures/'+name+'.png')
+    plt.savefig(os.path.join(fig_path, name+'.png'))
     # plt.show()
 
 
-def main_naive():
+def save_agent(my_agent, agent_file_path, agent_file_name):
+    my_agent.model.save_weights(os.path.join(agent_file_path, agent_file_name+'_weights.h5'), overwrite=True)
+    with open(os.path.join(agent_file_path, agent_file_name+'.pkl'), 'wb') as handle:
+        # cPickle.dump(my_agent, handle, pickle.HIGHEST_PROTOCOL)
+        pickle.dump(my_agent, handle, pickle.HIGHEST_PROTOCOL)
+
+
+
+def load_agent(env, agent_file_path, agent_file_name):
+    with open(os.path.join(agent_file_path, agent_file_name+'.pkl'), 'rb') as handle:
+        # my_agent = cPickle.load(handle)
+        my_agent = pickle.load(handle)
+        my_agent.env = env
+
+    my_agent.model.load_weights(os.path.join(agent_file_path, agent_file_name+'_weights.h5'))
+    return my_agent
+
+
+def play_with_saved_agent(agent_file_path, agent_file_name):
     game = FlappyBird()
-    env = PLE(game, fps=30, display_screen=True)
-    my_agent = naive.NaiveAgent(allowed_actions=env.getActionSet())
-
+    env = PLE(game, fps=30, display_screen=True, force_fps=True, state_preprocessor=process_state)
+    my_agent = load_agent(env, agent_file_path, agent_file_name)
     env.init()
-    reward = 0.0
-    nb_frames = 10000
 
-    for i in range(nb_frames):
-        if env.game_over():
-            env.reset_game()
+    while True:
+        my_agent.start_episode()
+        episode_reward = 0.0
+        while env.game_over() == False:
+            state = env.getGameState()
+            reward, action = my_agent.act(state, epsilon=0.05)
+            episode_reward += reward
 
-        observation = env.getScreenRGB()
-        action = my_agent.pickAction(reward, observation)
-        reward = env.act(action)
+        print "Agent score {:0.1f} reward for episode.".format(episode_reward)
+        my_agent.end_episode()
 
 
-def main():
+def agent_training(agent_file_path, agent_file_name, fig_path):
     # training parameters
-    num_epochs = 5
-    num_steps_train = 15000  # steps per epoch of training
-    num_steps_test = 3000
+    num_epochs = 1
+    num_steps_train = 100  # steps per epoch of training
+    num_steps_test = 100
     update_frequency = 4  # step frequency of model training/updates
 
     epsilon = 0.15  # percentage of time we perform a random action, help exploration.
@@ -126,15 +147,15 @@ def main():
                 learning_rewards.append(reward)
 
             if num_episodes % 5 == 0:
-                print "Episode {:01d}: Reward {:0.1f}".format(num_episodes, episode_reward)
+                # print "Episode {:01d}: Reward {:0.1f}".format(num_episodes, episode_reward)
                 logging.info("Episode {:01d}: Reward {:0.1f}".format(num_episodes, episode_reward))
 
             rewards.append(episode_reward)
             num_episodes += 1
             my_agent.end_episode()
 
-        print "Train Epoch {:02d}: Epsilon {:0.4f} | Avg. Loss {:0.3f} | Avg. Reward {:0.3f}\n"\
-            .format(epoch, epsilon, np.mean(losses), np.sum(rewards) / num_episodes)
+        # print "Train Epoch {:02d}: Epsilon {:0.4f} | Avg. Loss {:0.3f} | Avg. Reward {:0.3f}\n"\
+        #     .format(epoch, epsilon, np.mean(losses), np.sum(rewards) / num_episodes)
         logging.info("Train Epoch {:02d}: Epsilon {:0.4f} | Avg. Loss {:0.3f} | Avg. Reward {:0.3f}\n"
                      .format(epoch, epsilon, np.mean(losses), np.sum(rewards) / num_episodes))
 
@@ -165,24 +186,54 @@ def main():
                     env.display_screen = False
 
             if num_episodes % 5 == 0:
-                print "Episode {:01d}: Reward {:0.1f}".format(num_episodes, episode_reward)
+                # print "Episode {:01d}: Reward {:0.1f}".format(num_episodes, episode_reward)
                 logging.info("Episode {:01d}: Reward {:0.1f}".format(num_episodes, episode_reward))
 
             rewards.append(episode_reward)
             num_episodes += 1
             my_agent.end_episode()
 
-        print "Test Epoch {:02d}: Best Reward {:0.3f} | Avg. Reward {:0.3f}\n"\
-            .format(epoch, np.max(rewards), np.sum(rewards) / num_episodes)
+        # print "Test Epoch {:02d}: Best Reward {:0.3f} | Avg. Reward {:0.3f}\n"\
+        #     .format(epoch, np.max(rewards), np.sum(rewards) / num_episodes)
         logging.info("Test Epoch {:02d}: Best Reward {:0.3f} | Avg. Reward {:0.3f}\n"
                      .format(epoch, np.max(rewards), np.sum(rewards) / num_episodes))
 
     logging.info("\nTraining complete.")
-    plot_figure(learning_rewards, 'reward', 'reward_in_training')
-    plot_figure(testing_rewards, 'reward', 'reward_in_testing')
+    plot_figure(fig_path, learning_rewards, 'reward', 'reward_in_training')
+    plot_figure(fig_path, testing_rewards, 'reward', 'reward_in_testing')
 
-    print "\nTraining complete. Will loop forever playing!"
-    utils.loop_play_forever(env, my_agent)
+    save_agent(my_agent, agent_file_path, agent_file_name)
+
+    # print "\nTraining complete. Will loop forever playing!"
+    # utils.loop_play_forever(env, my_agent)
+    # game.quit()
+
+
+def main_naive():
+    game = FlappyBird()
+    env = PLE(game, fps=30, display_screen=True)
+    my_agent = naive.NaiveAgent(allowed_actions=env.getActionSet())
+
+    env.init()
+    reward = 0.0
+    nb_frames = 10000
+
+    for i in range(nb_frames):
+        if env.game_over():
+            env.reset_game()
+
+        observation = env.getScreenRGB()
+        action = my_agent.pickAction(reward, observation)
+        reward = env.act(action)
+
+
+def main():
+    agent_file_path = '../'
+    agent_file_name = 'my_agent'
+    fig_path = '../figures/'
+
+    # agent_training(agent_file_path, agent_file_name, fig_path)
+    play_with_saved_agent(agent_file_path, agent_file_name)
 
 
 if __name__ == '__main__':
