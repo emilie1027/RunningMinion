@@ -20,7 +20,8 @@ def process_state(state):
     state = np.array([state.values()])
     # state = state[0, 0:4]
 
-    max_values = np.array([288.0, 50.0, 288.0, 512.0, 512.0, 288, 512.0, 512.0])
+    #max_values = np.array([288.0, 50.0, 288.0, 512.0, 512.0, 288, 512.0, 512.0])
+    max_values = np.array([512.0, 50.0, 512.0, 512.0, 512.0])
     state = state / max_values
     # print state
 
