@@ -126,7 +126,7 @@ class Pipe(pygame.sprite.Sprite):
         self.upper_pipe = self.image_assets[color]["upper"]
 
         
-        top_bottom = gap_start-self.upper_pipe.get_height() 
+        #top_bottom = gap_start-self.upper_pipe.get_height()
         bottom_top = (gap_start+gap_size)*1.5
         
         #self.image.blit(self.upper_pipe, (0, top_bottom ))
@@ -184,7 +184,7 @@ class FlappyBird(base.PyGameWrapper):
 
     """
     
-    def __init__(self, width=288, height=512, pipe_gap=100):
+    def __init__(self, width=800, height=450, pipe_gap=100):
         
         actions = {
             "up": K_w        
@@ -209,7 +209,9 @@ class FlappyBird(base.PyGameWrapper):
         self._asset_dir = os.path.join( self._dir_, "assets/" )
         self._load_images()
         
-        self.pipe_offsets = [0, self.width*0.5, self.width]
+        self.pipe_width = self.images["pipes"]["green"]["lower"].get_width()
+        self.pipe_offset_ratios = np.random.choice([1]+range(6, int(self.width/self.pipe_width)), 2, replace=False)
+        self.pipe_offsets = [0, self.pipe_width*self.pipe_offset_ratios[0], self.pipe_width*self.pipe_offset_ratios[1]]
         self.init_pos = (
                 int( self.width * 0.2), 
                 int( self.height / 2 )
@@ -218,8 +220,8 @@ class FlappyBird(base.PyGameWrapper):
         # self.pipe_min = int(self.pipe_gap/4)  #25 Larger number indicates smaller pipe
         # self.pipe_max = int(self.height*0.79*0.6 - self.pipe_gap/2)#242 - 50
 
-        self.pipe_min = 120
-        self.pipe_max = 180
+        self.pipe_min = self.height*0.1
+        self.pipe_max = self.height*0.2
 
         self.backdrop = None
         self.player = None
@@ -354,7 +356,7 @@ class FlappyBird(base.PyGameWrapper):
         return self.score
 
     def _generatePipes(self, offset=0, pipe=None):
-        start_gap = self.rng.random_integers(
+        start_gap = self.rng.random_integers(    #decide y placement of pipe
                 self.pipe_min,
                 self.pipe_max
                 #self.pipe_min*1.5
