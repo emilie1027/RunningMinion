@@ -28,16 +28,33 @@ def init_agent(env):
     discount = 0.95  # discount factor
     rng = np.random.RandomState(24)
 
-    # myAgent = naive.NaiveAgent(allowed_actions=env.getActionSet())
+    #myAgent = naive.NaiveAgent(allowed_actions=env.getActionSet())
     myAgent = agent.Agent(env, batch_size, num_frames, frame_skip, lr, discount, rng, optimizer="sgd_nesterov")
     myAgent.build_model()
 
     return myAgent
 
+def main2():    
+    game = FlappyBird()
+    p = PLE(game, fps=30, display_screen=True)
+    agent = naive.NaiveAgent(allowed_actions=p.getActionSet())
+
+    p.init()
+    reward = 0.0
+    nb_frames = 10000
+
+    for i in range(nb_frames):
+       if p.game_over():
+               p.reset_game()
+
+       observation = p.getScreenRGB()
+       action = agent.pickAction(reward, observation)
+       reward = p.act(action)
+
 
 def main():
     # training parameters
-    num_epochs = 15
+    num_epochs = 5
     num_steps_train = 3000  # steps per epoch of training
     num_steps_test = 3000
     update_frequency = 4  # step frequency of model training/updates
@@ -129,7 +146,8 @@ def main():
 
         print "Test Epoch {:02d}: Best Reward {:0.3f} | Avg. Reward {:0.3f}".format(epoch, np.max(rewards), np.sum(rewards) / num_episodes)
 
-
+    print "\nTraining complete. Will loop forever playing!"
+    utils.loop_play_forever(env, myAgent)
 
 if __name__ == '__main__':
     main()
