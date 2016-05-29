@@ -100,6 +100,7 @@ class DQNAgent():
 
     def _best_action(self, state):
         q_vals = self.predict_single(state)
+        print 'q_vals', q_vals
 
         return self._argmax_rand(q_vals)  # the action with the best Q-value
 

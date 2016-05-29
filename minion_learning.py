@@ -9,7 +9,15 @@ import agent
 
 
 def process_state(state):
-    return np.array([ state.values() ])
+    state = np.array([state.values()])
+    state = state[0, 0:4]
+
+
+    max_values = np.array([300.0, 40.0, 300.0, 200.0])
+    state = state / max_values
+    print state
+
+    return state
 
 
 def init_agent(env):
@@ -56,7 +64,7 @@ def main():
     for epoch in range(1, num_epochs + 1):
         steps, num_episodes = 0, 0
         losses, rewards = [], []
-        # env.display_screen = False
+        env.display_screen = False
 
         # training loop
         while steps < num_steps_train:
@@ -122,17 +130,6 @@ def main():
 
         print "Test Epoch {:02d}: Best Reward {:0.3f} | Avg. Reward {:0.3f}".format(epoch, np.max(rewards), np.sum(rewards) / num_episodes)
 
-
-    # reward = 0.0
-    # nb_frames = 10000
-    #
-    # for i in range(nb_frames):
-    #    if env.game_over():
-    #        env.reset_game()
-    #
-    #    state = env.getGameState()
-    #    action = myAgent.pickAction(reward, state)
-    #    reward = env.act(action)
 
 
 if __name__ == '__main__':
