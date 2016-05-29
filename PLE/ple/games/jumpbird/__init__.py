@@ -45,7 +45,7 @@ class BirdPlayer(pygame.sprite.Sprite):
         self.current_image = 0
         self.color = color
         #self.image = self.image_assets[self.color][self.current_image]
-        self.image = self.image_assets
+        self.image = self.image_assets[self.current_image]
         self.rect = self.image.get_rect()
         self.thrust_time = 0.0 
         self.tick = 0
@@ -66,7 +66,7 @@ class BirdPlayer(pygame.sprite.Sprite):
         self.tick += 1
 
         #image cycle
-        if (self.tick + 1) % 15 == 0:
+        if (self.tick + 1) % 5 == 0:
             self.current_image += 1
 
             if self.current_image >= 3:
@@ -74,7 +74,7 @@ class BirdPlayer(pygame.sprite.Sprite):
            
             #set the image to draw with.
             #self.image = self.image_assets[self.color][self.current_image]
-            self.image = self.image_assets
+            self.image = self.image_assets[self.current_image]
             self.rect = self.image.get_rect()
       
         if self.vel < self.MAX_DROP_SPEED and self.thrust_time == 0.0:
@@ -102,7 +102,7 @@ class Pipe(pygame.sprite.Sprite):
             SCREEN_WIDTH, SCREEN_HEIGHT, gap_start, gap_size, image_assets, scale,
             offset=0, color="green"):
 
-        self.speed = 4.0*scale
+        self.speed = 8.0*scale
         self.SCREEN_WIDTH = SCREEN_WIDTH
         self.SCREEN_HEIGHT = SCREEN_HEIGHT
         
@@ -161,7 +161,7 @@ class Backdrop():
         else:
             self.x = 0
        
-        screen.blit(self.base_image, (self.x, self.SCREEN_HEIGHT*0.79)) 
+        screen.blit(self.base_image, (self.x, self.SCREEN_HEIGHT*0.81))
 
     def draw_background(self, screen):
         screen.blit(self.background_image, (0,0))
@@ -242,8 +242,13 @@ class FlappyBird(base.PyGameWrapper):
             
             self.images["player"][c] = [ pygame.image.load(im).convert_alpha() for im in image_assets ]
         
-        path = os.path.join( self._asset_dir, "minion.png")
-        self.images["minion"]=pygame.image.load(path).convert_alpha()
+        image_assets = [
+            os.path.join( self._asset_dir, "minion-left.png"),
+            os.path.join( self._asset_dir, "minion-mid.png"),
+            os.path.join( self._asset_dir, "minion-right.png"),
+        ]
+        self.images["minion"]=[pygame.image.load(im).convert_alpha() for im in image_assets]
+        
         
         self.images["background"] = {}
         for b in ["day", "night"]:
