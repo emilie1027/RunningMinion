@@ -30,7 +30,7 @@ class BirdPlayer(pygame.sprite.Sprite):
         
         #all in terms of y
         self.vel = 0 
-        self.FLAP_POWER = 9*self.scale
+        self.FLAP_POWER = 12*self.scale
         self.MAX_DROP_SPEED = 10.0
         self.GRAVITY = 1.0*self.scale
 
@@ -44,12 +44,14 @@ class BirdPlayer(pygame.sprite.Sprite):
         self.flapped = True #start off w/ a flap
         self.current_image = 0
         self.color = color
-        self.image = self.image_assets[self.color][self.current_image]
+        #self.image = self.image_assets[self.color][self.current_image]
+        self.image = self.image_assets
         self.rect = self.image.get_rect()
         self.thrust_time = 0.0 
         self.tick = 0
         self.pos_x = init_pos[0]
-        self.pos_y = init_pos[1]
+        #self.pos_y = init_pos[1]
+        self.pos_y = self.SCREEN_HEIGHT*0.745
         
     def _oscillateStartPos(self):
         offset = 8*np.sin( self.rng.rand() * np.pi )
@@ -71,14 +73,15 @@ class BirdPlayer(pygame.sprite.Sprite):
                 self.current_image = 0
            
             #set the image to draw with.
-            self.image = self.image_assets[self.color][self.current_image]
+            #self.image = self.image_assets[self.color][self.current_image]
+            self.image = self.image_assets
             self.rect = self.image.get_rect()
       
         if self.vel < self.MAX_DROP_SPEED and self.thrust_time == 0.0:
             self.vel += self.GRAVITY
 
         #the whole point is to spread this out over the same time it takes in 30fps.
-        if self.thrust_time+dt <= (1.0/30.0) and self.flapped:
+        if self.thrust_time+dt <= (1.0/30.0) and self.flapped and self.pos_y >= self.SCREEN_HEIGHT*0.745:
             self.thrust_time += dt
             self.vel += -1.0*self.FLAP_POWER
         else:
@@ -86,6 +89,8 @@ class BirdPlayer(pygame.sprite.Sprite):
             self.flapped = False
 
         self.pos_y += self.vel
+        if self.pos_y > self.SCREEN_HEIGHT*0.745:
+            self.pos_y = self.SCREEN_HEIGHT*0.745
         self.rect.center = (self.pos_x, self.pos_y)
 
     def draw(self, screen):
@@ -122,9 +127,9 @@ class Pipe(pygame.sprite.Sprite):
 
         
         top_bottom = gap_start-self.upper_pipe.get_height() 
-        bottom_top = gap_start+gap_size
+        bottom_top = (gap_start+gap_size)*1.5
         
-        self.image.blit(self.upper_pipe, (0, top_bottom ))
+        #self.image.blit(self.upper_pipe, (0, top_bottom ))
         self.image.blit(self.lower_pipe, (0, bottom_top ))
         
         self.rect = self.image.get_rect()
@@ -210,8 +215,11 @@ class FlappyBird(base.PyGameWrapper):
                 int( self.height / 2 )
         )
 
-        self.pipe_min = int(self.pipe_gap/4) 
-        self.pipe_max = int(self.height*0.79*0.6 - self.pipe_gap/2)
+        # self.pipe_min = int(self.pipe_gap/4)  #25 Larger number indicates smaller pipe
+        # self.pipe_max = int(self.height*0.79*0.6 - self.pipe_gap/2)#242 - 50
+
+        self.pipe_min = 120
+        self.pipe_max = 180
 
         self.backdrop = None
         self.player = None
@@ -228,6 +236,9 @@ class FlappyBird(base.PyGameWrapper):
             ]
             
             self.images["player"][c] = [ pygame.image.load(im).convert_alpha() for im in image_assets ]
+        
+        path = os.path.join( self._asset_dir, "minion.png")
+        self.images["minion"]=pygame.image.load(path).convert_alpha()
         
         self.images["background"] = {}
         for b in ["day", "night"]:
@@ -261,7 +272,8 @@ class FlappyBird(base.PyGameWrapper):
                     self.width, 
                     self.height, 
                     self.init_pos, 
-                    self.images["player"],
+                    #self.images["player"],
+                    self.images["minion"],
                     self.rng,
                     color="red",
                     scale=self.scale
@@ -345,6 +357,7 @@ class FlappyBird(base.PyGameWrapper):
         start_gap = self.rng.random_integers(
                 self.pipe_min,
                 self.pipe_max
+                #self.pipe_min*1.5
         )  
 
         if pipe == None:
@@ -408,11 +421,11 @@ class FlappyBird(base.PyGameWrapper):
 
         #fell on the ground
         if self.player.pos_y >= 0.79*self.height - self.player.height:
-            self.lives -= 1
+            self.lives = 1
 
         #went above the screen
         if self.player.pos_y < -self.player.height:
-            self.lives -= 1
+            self.lives = 1
 
         self.player.update(dt)
         self.pipe_group.update(dt)
@@ -420,6 +433,7 @@ class FlappyBird(base.PyGameWrapper):
         if self.lives <= 0:
             self.score += self.rewards["loss"]
 
+        #draw part
         self.backdrop.draw_background(self.screen)
         self.pipe_group.draw(self.screen)
         self.backdrop.update_draw_base(self.screen, dt)
