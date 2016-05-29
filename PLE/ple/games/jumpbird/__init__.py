@@ -107,9 +107,11 @@ class Pipe(pygame.sprite.Sprite):
         self.SCREEN_HEIGHT = SCREEN_HEIGHT
         
         self.image_assets = image_assets
+        self.obstacle = self.image_assets
         #done image stuff
 
-        self.width = self.image_assets["green"]["lower"].get_width()
+        #self.width = self.image_assets["green"]["lower"].get_width()
+        self.width = self.obstacle.get_width()
         pygame.sprite.Sprite.__init__(self)
         
         self.image = pygame.Surface((self.width, self.SCREEN_HEIGHT))
@@ -122,15 +124,15 @@ class Pipe(pygame.sprite.Sprite):
         self.gap_start = gap_start
         self.x = self.SCREEN_WIDTH+self.width+offset
         
-        self.lower_pipe = self.image_assets[color]["lower"]
-        self.upper_pipe = self.image_assets[color]["upper"]
-
+        #self.lower_pipe = self.image_assets[color]["lower"]
+        #self.upper_pipe = self.image_assets[color]["upper"]
         
         #top_bottom = gap_start-self.upper_pipe.get_height()
         bottom_top = (gap_start+gap_size)*1.5
         
         #self.image.blit(self.upper_pipe, (0, top_bottom ))
-        self.image.blit(self.lower_pipe, (0, bottom_top ))
+        #self.image.blit(self.lower_pipe, (0, bottom_top ))
+        self.image.blit(self.obstacle,(0, bottom_top))
         
         self.rect = self.image.get_rect()
         self.rect.center = (self.x, self.SCREEN_HEIGHT/2)
@@ -209,7 +211,8 @@ class FlappyBird(base.PyGameWrapper):
         self._asset_dir = os.path.join( self._dir_, "assets/" )
         self._load_images()
         
-        self.pipe_width = self.images["pipes"]["green"]["lower"].get_width()
+        #self.pipe_width = self.images["pipes"]["green"]["lower"].get_width()
+        self.pipe_width = self.images["obstacle"].get_width()
         self.pipe_offset_ratios = np.random.choice([1]+range(6, int(self.width/self.pipe_width)), 2, replace=False)
         self.pipe_offsets = [0, self.pipe_width*self.pipe_offset_ratios[0], self.pipe_width*self.pipe_offset_ratios[1]]
         self.init_pos = (
@@ -244,7 +247,7 @@ class FlappyBird(base.PyGameWrapper):
         
         self.images["background"] = {}
         for b in ["day", "night"]:
-            path = os.path.join( self._asset_dir, "background-%s.png" % b )
+            path = os.path.join( self._asset_dir, "background-%s.jpg" % b )
 
             self.images["background"][b] = pygame.image.load(path).convert()
 
@@ -254,9 +257,13 @@ class FlappyBird(base.PyGameWrapper):
 
             self.images["pipes"][c] = {}
             self.images["pipes"][c]["lower"] = pygame.image.load(path).convert_alpha()
-            self.images["pipes"][c]["upper"] = pygame.transform.rotate(self.images["pipes"][c]["lower"], 180) 
+            self.images["pipes"][c]["upper"] = pygame.transform.rotate(self.images["pipes"][c]["lower"], 180)
+        
+        self.images["obstacle"] = {}
+        path = os.path.join(self._asset_dir, "obstacle.png")
+        self.images["obstacle"]=pygame.image.load(path).convert_alpha()
 
-        path = os.path.join( self._asset_dir, "base.png" )
+        path = os.path.join( self._asset_dir, "base.jpg" )
         self.images["base"] = pygame.image.load(path).convert()
 
     def init(self):
@@ -368,7 +375,8 @@ class FlappyBird(base.PyGameWrapper):
                         self.height,
                         start_gap, 
                         self.pipe_gap,
-                        self.images["pipes"],
+                        #self.images["pipes"],
+                        self.images["obstacle"],
                         self.scale,
                         color=self.pipe_color,
                         offset=offset
