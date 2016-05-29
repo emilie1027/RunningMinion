@@ -108,7 +108,7 @@ class Pipe(pygame.sprite.Sprite):
             SCREEN_WIDTH, SCREEN_HEIGHT, gap_start, gap_size, image_assets, scale,
             offset=0, color="green"):
 
-        self.speed = 6.0*scale
+        self.speed = 7.0*scale
         self.SCREEN_WIDTH = SCREEN_WIDTH
         self.SCREEN_HEIGHT = SCREEN_HEIGHT
         
@@ -323,6 +323,33 @@ class FlappyBird(base.PyGameWrapper):
         self.tick = 0
 
     def getGameState(self):
+       
+        pipes = []
+        #print len(self.pipe_group)
+        #print 'new state'
+        for p in self.pipe_group:
+            #print p.x, self.player.pos_x
+            if p.x > self.player.pos_x:
+                pipes.append((p, p.x - self.player.pos_x))
+              
+        sorted(pipes, key=lambda p: p[1])
+
+        next_pipe = pipes[0][0]
+
+
+        state = {
+            "player_y": self.player.pos_y,
+            "player_vel": self.player.vel,
+            
+            "next_pipe_dist_to_player": next_pipe.x - self.player.pos_x,
+            "next_pipe_top_y": next_pipe.gap_start,
+            "next_pipe_bottom_y": next_pipe.gap_start+self.pipe_gap, 
+        }
+
+        return state
+
+
+    def getGameState_0(self):
         """
         Gets a non-visual state representation of the game.
         
@@ -344,12 +371,15 @@ class FlappyBird(base.PyGameWrapper):
 
         """
         pipes = []
+        #print len(self.pipe_group)
+        print 'new state'
         for p in self.pipe_group:
+            print p.x, self.player.pos_x
             if p.x > self.player.pos_x:
                 pipes.append((p, p.x - self.player.pos_x))
               
         sorted(pipes, key=lambda p: p[1])
-
+        #print len(pipes)
         next_pipe = pipes[1][0] 
         next_next_pipe = pipes[0][0] 
         
@@ -440,7 +470,7 @@ class FlappyBird(base.PyGameWrapper):
             #     cc+=1
             if (p.x - p.width/2 -8) <= self.player.pos_x < (p.x - p.width/2 + 8):
                 if self.player.pos_y + self.player.height/2 > p.y_top:
-                    print 'hit!!'
+                    #print 'hit!!'
                     self.lives-=1
                     break
                 self.score += self.rewards["positive"]
