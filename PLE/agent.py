@@ -40,6 +40,35 @@ class Agent(DQNAgent):
 
         self.model = model
 
+    def __getstate__(self):
+        return self.batch_size, self.num_frames, self.frame_skip, self.lr, self.discount, self.rng, \
+               self.optimizer, self.frame_dim, self.state_shape, self.input_shape, \
+               self.state, self.actions, self.num_actions, self.state_dim
+
+    def __setstate__(self, pickled_state):
+        batch_size, num_frames, frame_skip, lr, discount, rng, \
+        optimizer, frame_dim, state_shape, input_shape, state, \
+        actions, num_actions, state_dim = pickled_state
+
+
+        self.batch_size = batch_size
+        self.num_frames = num_frames
+        self.frame_skip = frame_skip
+        self.lr = lr
+        self.discount = discount
+        self.rng = rng
+
+        self.optimizer = optimizer
+        self.frame_dim = frame_dim
+        self.state_shape = state_shape
+        self.input_shape = input_shape
+        self.state = state
+
+        self.actions = actions
+        self.num_actions = num_actions
+        self.state_dim = state_dim
+
+        self.build_model()
 
 def nv_state_preprocessor(state):
     """
