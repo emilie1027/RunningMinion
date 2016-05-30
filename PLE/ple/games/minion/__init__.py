@@ -314,7 +314,6 @@ class FlappyBird(base.PyGameWrapper):
         for p in self.pipe_group:
             if p.x > self.player.pos_x:
                 pipes.append((p, p.x - self.player.pos_x))
-        print len(pipes)
         sorted(pipes, key=lambda p: p[1])
 
         next_pipe = pipes[1][0] 

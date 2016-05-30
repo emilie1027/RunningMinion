@@ -450,7 +450,7 @@ class FlappyBird(base.PyGameWrapper):
 
         #handle player movement
         self._handle_player_events()
-        cc=0
+        #cc=0
         for p in self.pipe_group:
             # hit = pygame.sprite.spritecollide(self.player, self.pipe_group, False)
             # for h in hit:    #do check to see if its within the gap.
@@ -492,7 +492,8 @@ class FlappyBird(base.PyGameWrapper):
 
         if self.lives <= 0:
             self.score += self.rewards["loss"]
-
+        if self.player.flapped==True:
+            self.score += self.rewards["negative"]
         #draw part
         self.backdrop.draw_background(self.screen)
         self.pipe_group.draw(self.screen)
