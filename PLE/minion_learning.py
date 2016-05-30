@@ -21,7 +21,7 @@ def process_state(state):
     # state = state[0, 0:4]
 
     #max_values = np.array([288.0, 50.0, 288.0, 512.0, 512.0, 288, 512.0, 512.0])
-    max_values = np.array([512.0, 50.0, 512.0, 512.0, 512.0])
+    max_values = np.array([512.0, 512.0, 512.0])
     state = state / max_values
     # print state
 
@@ -94,8 +94,8 @@ def play_with_saved_agent(agent_file_path, agent_file_name):
 
 def agent_training(agent_file_path, agent_file_name, fig_path):
     # training parameters
-    num_epochs = 1
-    num_steps_train = 100  # steps per epoch of training
+    num_epochs = 5
+    num_steps_train = 5000  # steps per epoch of training
     num_steps_test = 100
     update_frequency = 4  # step frequency of model training/updates
 

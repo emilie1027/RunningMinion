@@ -229,8 +229,8 @@ class FlappyBird(base.PyGameWrapper):
         # self.pipe_min = int(self.pipe_gap/4)  #25 Larger number indicates smaller pipe
         # self.pipe_max = int(self.height*0.79*0.6 - self.pipe_gap/2)#242 - 50
 
-        self.pipe_min = self.height*0.1
-        self.pipe_max = self.height*0.2
+        self.pipe_min = self.height*0.16
+        self.pipe_max = self.height*0.25
 
         self.backdrop = None
         self.player = None
@@ -338,9 +338,6 @@ class FlappyBird(base.PyGameWrapper):
 
 
         state = {
-            "player_y": self.player.pos_y,
-            "player_vel": self.player.vel,
-            
             "next_pipe_dist_to_player": next_pipe.x - self.player.pos_x,
             "next_pipe_top_y": next_pipe.gap_start,
             "next_pipe_bottom_y": next_pipe.gap_start+self.pipe_gap, 
@@ -473,7 +470,7 @@ class FlappyBird(base.PyGameWrapper):
                     #print 'hit!!'
                     self.lives-=1
                     break
-                self.score += self.rewards["positive"]
+                self.score += 2*self.rewards["positive"]
 
             #is out out of the screen?
             if p.x < -p.width:
@@ -493,7 +490,7 @@ class FlappyBird(base.PyGameWrapper):
         if self.lives <= 0:
             self.score += self.rewards["loss"]
         if self.player.flapped==True:
-            self.score += self.rewards["negative"]
+            self.score += self.rewards["negative"]*0.2
         #draw part
         self.backdrop.draw_background(self.screen)
         self.pipe_group.draw(self.screen)
