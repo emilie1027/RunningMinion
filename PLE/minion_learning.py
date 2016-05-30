@@ -1,12 +1,12 @@
 import os
 import logging
-import pickle
+# import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
 # PLE imports
-#from ple.games.minion import FlappyBird
-from ple.games.jumpbird import FlappyBird
+from ple.games.minion import FlappyBird
+# from ple.games.jumpbird import FlappyBird
 from ple import PLE
 from six.moves import cPickle
 
@@ -20,8 +20,8 @@ def process_state(state):
     state = np.array([state.values()])
     # state = state[0, 0:4]
 
-    #max_values = np.array([288.0, 50.0, 288.0, 512.0, 512.0, 288, 512.0, 512.0])
-    max_values = np.array([512.0, 50.0, 512.0, 512.0, 512.0])
+    max_values = np.array([288.0, 50.0, 288.0, 512.0, 512.0, 288, 512.0, 512.0])
+    # max_values = np.array([512.0, 50.0, 512.0, 512.0, 512.0])
     state = state / max_values
     # print state
 
@@ -59,15 +59,14 @@ def plot_figure(fig_path, data, label, name):
 def save_agent(my_agent, agent_file_path, agent_file_name):
     my_agent.model.save_weights(os.path.join(agent_file_path, agent_file_name+'_weights.h5'), overwrite=True)
     with open(os.path.join(agent_file_path, agent_file_name+'.pkl'), 'wb') as handle:
-        # cPickle.dump(my_agent, handle, pickle.HIGHEST_PROTOCOL)
-        pickle.dump(my_agent, handle, pickle.HIGHEST_PROTOCOL)
-
+        cPickle.dump(my_agent, handle, pickle.HIGHEST_PROTOCOL)
+        # pickle.dump(my_agent, handle, pickle.HIGHEST_PROTOCOL)
 
 
 def load_agent(env, agent_file_path, agent_file_name):
     with open(os.path.join(agent_file_path, agent_file_name+'.pkl'), 'rb') as handle:
-        # my_agent = cPickle.load(handle)
-        my_agent = pickle.load(handle)
+        my_agent = cPickle.load(handle)
+        # my_agent = pickle.load(handle)
         my_agent.env = env
 
     my_agent.model.load_weights(os.path.join(agent_file_path, agent_file_name+'_weights.h5'))
