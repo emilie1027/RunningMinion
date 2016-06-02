@@ -336,7 +336,7 @@ class FlappyBird(base.PyGameWrapper):
         self.avg_dist_ratio = 4
         
         if self.gameMode=="easy":
-            self.pipe_offsets = [0, self.width*0.5, self.width, self.width*1.5, self.width*2]
+            self.pipe_offsets = [-75, -75+self.width*0.5,  -75+self.width*1.2,  -75+self.width*1.3,  -75+self.width*2]
         
         else:
             pipe_offset_ratios =[0] + sorted(np.random.choice(range(self.min_dist_ratio, self.max_dist_ratio), 2, replace=False))
@@ -463,7 +463,7 @@ class FlappyBird(base.PyGameWrapper):
             #is out out of the screen?
             if p.x < -p.width:
                 if self.gameMode=="easy":
-                    self._generatePipes(offset=self.width*0.9, pipe=p)
+                    self._generatePipes(offset=self.width*1.5, pipe=p)
                 
                 else:
                     #get the smallest and largest p in the rest of pipes
