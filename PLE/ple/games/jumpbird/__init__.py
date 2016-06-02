@@ -192,7 +192,7 @@ class FlappyBird(base.PyGameWrapper):
 
     """
     
-    def __init__(self, width=800, height=450, pipe_gap=100):
+    def __init__(self, width=800, height=450, pipe_gap=100, gameMode="easy"):
         
         actions = {
             "up": K_w        
@@ -205,7 +205,7 @@ class FlappyBird(base.PyGameWrapper):
         self.scale = 30.0/fps
     
         self.allowed_fps = 30 #restrict the fps
-        
+        self.gameMode=gameMode
         self.pipe_gap = 100
         self.pipe_color = "red"
         self.images = {}
@@ -320,21 +320,26 @@ class FlappyBird(base.PyGameWrapper):
         self.pipe_color = self.rng.choice(["red", "green"])
         #for i,p in enumerate(self.pipe_group):
         #    self._generatePipes(offset=self.pipe_offsets[i], pipe=p)
-
+        
+        
         self.pipe_width = self.images["obstacle"].get_width()
         #minimum ratio(number of pipe distance) between pipes
         self.min_dist_ratio = 4
         self.max_dist_ratio = int(self.width/self.pipe_width)+1
         self.avg_dist_ratio = 4
         
-        pipe_offset_ratios =[0] + sorted(np.random.choice(range(self.min_dist_ratio, self.max_dist_ratio), 2, replace=False))
-        #pipe_offsets= pipe_offsets + [np.random.choice([pipe_offsets[2]+self.pipe_width] +[rr*self.pipe_width+max(pipe_offsets[0]+self.width, pipe_offsets[2]+self.min_dist) for rr in range(0,self.avg_dist/self.])]
-        pipe_offset_ratios = pipe_offset_ratios + [np.random.choice([pipe_offset_ratios[2]+1] +[rr+max(pipe_offset_ratios[0]+self.max_dist_ratio, pipe_offset_ratios[2]+self.min_dist_ratio) for rr in range(0,self.avg_dist_ratio)])]
-        pipe_offset_ratios = pipe_offset_ratios + [np.random.choice([pipe_offset_ratios[3]+1] +[rr+max(pipe_offset_ratios[1]+self.max_dist_ratio, pipe_offset_ratios[3]+self.min_dist_ratio) for rr in range(0,self.avg_dist_ratio)])]
+        if self.gameMode=="easy":
+            self.pipe_offsets = [0, self.width*0.5, self.width, self.width*1.5, self.width*2]
         
+        else:
+            pipe_offset_ratios =[0] + sorted(np.random.choice(range(self.min_dist_ratio, self.max_dist_ratio), 2, replace=False))
+            #pipe_offsets= pipe_offsets + [np.random.choice([pipe_offsets[2]+self.pipe_width] +[rr*self.pipe_width+max(pipe_offsets[0]+self.width, pipe_offsets[2]+self.min_dist) for rr in range(0,self.avg_dist/self.])]
+            pipe_offset_ratios = pipe_offset_ratios + [np.random.choice([pipe_offset_ratios[2]+1] +[rr+max(pipe_offset_ratios[0]+self.max_dist_ratio, pipe_offset_ratios[2]+self.min_dist_ratio) for rr in range(0,self.avg_dist_ratio)])]
+            pipe_offset_ratios = pipe_offset_ratios + [np.random.choice([pipe_offset_ratios[3]+1] +[rr+max(pipe_offset_ratios[1]+self.max_dist_ratio, pipe_offset_ratios[3]+self.min_dist_ratio) for rr in range(0,self.avg_dist_ratio)])]
         
-        self.pipe_offset_ratios = pipe_offset_ratios
-        self.pipe_offsets = [self.pipe_width*por for por in pipe_offset_ratios]
+            self.pipe_offset_ratios = pipe_offset_ratios
+            self.pipe_offsets = [self.pipe_width*por for por in pipe_offset_ratios]
+        
         
         for i,p in enumerate(self.pipe_group):
             self._generatePipes(offset=self.pipe_offsets[i], pipe=p)
@@ -494,22 +499,23 @@ class FlappyBird(base.PyGameWrapper):
 
             #is out out of the screen?
             if p.x < -p.width:
-                #original
-                #self._generatePipes(offset=self.width*0.2, pipe=p)
+                if self.gameMode=="easy":
+                    self._generatePipes(offset=self.width*0.9, pipe=p)
                 
-                #get the smallest and largest p in the rest of pipes
-                maxP = max(self.pipe_group, key=lambda p: p.x)
-                #print "maxP="+str(maxP.x)
-                minP = maxP
-                for pp in self.pipe_group:
-                    if pp.x < minP.x and pp.x > p.x:
-                        minP=pp
-                #print "minP="+str(minP.x)
-                #print "curretnP="+str(p.x)
+                else:
+                    #get the smallest and largest p in the rest of pipes
+                    maxP = max(self.pipe_group, key=lambda p: p.x)
+                    #print "maxP="+str(maxP.x)
+                    minP = maxP
+                    for pp in self.pipe_group:
+                        if pp.x < minP.x and pp.x > p.x:
+                            minP=pp
+                    #print "minP="+str(minP.x)
+                    #print "curretnP="+str(p.x)
                 
-                new_offset=max(minP.x, maxP.x-self.width) + self.pipe_width * np.random.choice([0] + range(self.min_dist_ratio, self.min_dist_ratio+self.avg_dist_ratio))
+                    new_offset=max(minP.x, maxP.x-self.width) + self.pipe_width * np.random.choice([0] + range(self.min_dist_ratio, self.min_dist_ratio+self.avg_dist_ratio))
                 
-                self._generatePipes(offset=new_offset, pipe=p)
+                    self._generatePipes(offset=new_offset, pipe=p)
     
     
 
