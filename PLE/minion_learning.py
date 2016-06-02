@@ -5,8 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # PLE imports
-from ple.games.minion import FlappyBird
-# from ple.games.jumpbird import FlappyBird
+#from ple.games.minion import FlappyBird
+from ple.games.jumpbird import FlappyBird
 from ple import PLE
 from six.moves import cPickle
 
@@ -19,10 +19,8 @@ import agent
 def process_state(state):
     state = np.array([state.values()])
     # state = state[0, 0:4]
-
     #max_values = np.array([288.0, 50.0, 288.0, 512.0, 512.0, 288, 512.0, 512.0])
     max_values = np.array([512.0, 512.0, 512.0])
-
     state = state / max_values
     # print state
 

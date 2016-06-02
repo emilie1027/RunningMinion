@@ -336,7 +336,6 @@ class FlappyBird(base.PyGameWrapper):
 
         next_pipe = pipes[0][0]
 
-
         state = {
             "next_pipe_dist_to_player": next_pipe.x - self.player.pos_x,
             "next_pipe_top_y": next_pipe.gap_start,
