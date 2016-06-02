@@ -4,6 +4,7 @@ import numpy as np
 
 import pygame
 from pygame.constants import K_w
+from pygame.locals import *
 from .. import base
 
 
@@ -192,7 +193,7 @@ class FlappyBird(base.PyGameWrapper):
 
     """
     
-    def __init__(self, width=800, height=450, pipe_gap=100):
+    def __init__(self, width=800, height=450, pipe_gap=100, gameMode="easy"):
         
         actions = {
             "up": K_w        
@@ -205,14 +206,20 @@ class FlappyBird(base.PyGameWrapper):
         self.scale = 30.0/fps
     
         self.allowed_fps = 30 #restrict the fps
-        
+        self.gameMode=gameMode
         self.pipe_gap = 100
         self.pipe_color = "red"
         self.images = {}
 
         #so we can preload images
         pygame.display.set_mode((1,1), pygame.NOFRAME)
-        
+        pygame.display.set_caption("Running Minion")
+
+        self.white  = 255,255,255
+        self.red = 220,20,60
+        pygame.font.init()
+        self.myfont = pygame.font.Font(None, 60)
+
         self._dir_ = os.path.dirname(os.path.abspath(__file__))
         self._asset_dir = os.path.join( self._dir_, "assets/" )
         self._load_images()
@@ -230,7 +237,7 @@ class FlappyBird(base.PyGameWrapper):
         # self.pipe_min = int(self.pipe_gap/4)  #25 Larger number indicates smaller pipe
         # self.pipe_max = int(self.height*0.79*0.6 - self.pipe_gap/2)#242 - 50
 
-        self.pipe_min = self.height*0.16
+        self.pipe_min = self.height*0.18
         self.pipe_max = self.height*0.25
 
         self.backdrop = None
@@ -320,26 +327,32 @@ class FlappyBird(base.PyGameWrapper):
         self.pipe_color = self.rng.choice(["red", "green"])
         #for i,p in enumerate(self.pipe_group):
         #    self._generatePipes(offset=self.pipe_offsets[i], pipe=p)
-
+        
+        
         self.pipe_width = self.images["obstacle"].get_width()
         #minimum ratio(number of pipe distance) between pipes
         self.min_dist_ratio = 4
         self.max_dist_ratio = int(self.width/self.pipe_width)+1
         self.avg_dist_ratio = 4
         
-        pipe_offset_ratios =[0] + sorted(np.random.choice(range(self.min_dist_ratio, self.max_dist_ratio), 2, replace=False))
-        #pipe_offsets= pipe_offsets + [np.random.choice([pipe_offsets[2]+self.pipe_width] +[rr*self.pipe_width+max(pipe_offsets[0]+self.width, pipe_offsets[2]+self.min_dist) for rr in range(0,self.avg_dist/self.])]
-        pipe_offset_ratios = pipe_offset_ratios + [np.random.choice([pipe_offset_ratios[2]+1] +[rr+max(pipe_offset_ratios[0]+self.max_dist_ratio, pipe_offset_ratios[2]+self.min_dist_ratio) for rr in range(0,self.avg_dist_ratio)])]
-        pipe_offset_ratios = pipe_offset_ratios + [np.random.choice([pipe_offset_ratios[3]+1] +[rr+max(pipe_offset_ratios[1]+self.max_dist_ratio, pipe_offset_ratios[3]+self.min_dist_ratio) for rr in range(0,self.avg_dist_ratio)])]
+        if self.gameMode=="easy":
+            self.pipe_offsets = [0, self.width*0.5, self.width, self.width*1.5, self.width*2]
         
+        else:
+            pipe_offset_ratios =[0] + sorted(np.random.choice(range(self.min_dist_ratio, self.max_dist_ratio), 2, replace=False))
+            #pipe_offsets= pipe_offsets + [np.random.choice([pipe_offsets[2]+self.pipe_width] +[rr*self.pipe_width+max(pipe_offsets[0]+self.width, pipe_offsets[2]+self.min_dist) for rr in range(0,self.avg_dist/self.])]
+            pipe_offset_ratios = pipe_offset_ratios + [np.random.choice([pipe_offset_ratios[2]+1] +[rr+max(pipe_offset_ratios[0]+self.max_dist_ratio, pipe_offset_ratios[2]+self.min_dist_ratio) for rr in range(0,self.avg_dist_ratio)])]
+            pipe_offset_ratios = pipe_offset_ratios + [np.random.choice([pipe_offset_ratios[3]+1] +[rr+max(pipe_offset_ratios[1]+self.max_dist_ratio, pipe_offset_ratios[3]+self.min_dist_ratio) for rr in range(0,self.avg_dist_ratio)])]
         
-        self.pipe_offset_ratios = pipe_offset_ratios
-        self.pipe_offsets = [self.pipe_width*por for por in pipe_offset_ratios]
+            self.pipe_offset_ratios = pipe_offset_ratios
+            self.pipe_offsets = [self.pipe_width*por for por in pipe_offset_ratios]
+        
         
         for i,p in enumerate(self.pipe_group):
             self._generatePipes(offset=self.pipe_offsets[i], pipe=p)
 
         self.score = 0.0
+        self.distance=0.0
         self.lives = 1
         self.tick = 0
 
@@ -372,58 +385,6 @@ class FlappyBird(base.PyGameWrapper):
         #print state
         return state
 
-
-    # def getGameState_0(self):
-    #     """
-    #     Gets a non-visual state representation of the game.
-        
-    #     Returns
-    #     -------
-
-    #     dict
-    #         * player y position.
-    #         * players velocity.
-    #         * next pipe distance to player
-    #         * next pipe top y position
-    #         * next pipe bottom y position
-    #         * next next pipe distance to player
-    #         * next next pipe top y position
-    #         * next next pipe bottom y position
-
-
-    #         See code for structure.
-
-    #     """
-    #     pipes = []
-    #     #print len(self.pipe_group)
-    #     print 'new state'
-    #     for p in self.pipe_group:
-    #         print p.x, self.player.pos_x
-    #         if p.x > self.player.pos_x:
-    #             pipes.append((p, p.x - self.player.pos_x))
-              
-    #     sorted(pipes, key=lambda p: p[1])
-    #     #print len(pipes)
-    #     next_pipe = pipes[1][0] 
-    #     next_next_pipe = pipes[0][0] 
-        
-    #     if next_next_pipe.x < next_pipe.x:
-    #         next_pipe, next_next_pipe = next_next_pipe, next_pipe
-
-    #     state = {
-    #         "player_y": self.player.pos_y,
-    #         "player_vel": self.player.vel,
-            
-    #         "next_pipe_dist_to_player": next_pipe.x - self.player.pos_x,
-    #         "next_pipe_top_y": next_pipe.gap_start,
-    #         "next_pipe_bottom_y": next_pipe.gap_start+self.pipe_gap, 
-            
-    #         "next_next_pipe_dist_to_player": next_next_pipe.x - self.player.pos_x,
-    #         "next_next_pipe_top_y": next_next_pipe.gap_start,
-    #         "next_next_pipe_bottom_y": next_next_pipe.gap_start+self.pipe_gap 
-    #     }
-
-    #     return state
 
     def getScore(self):
         return self.score
@@ -471,7 +432,6 @@ class FlappyBird(base.PyGameWrapper):
         dt = dt / 1000.0
 
         self.score += self.rewards["tick"]
-
         #handle player movement
         self._handle_player_events()
         #cc=0
@@ -497,26 +457,28 @@ class FlappyBird(base.PyGameWrapper):
                     #print 'hit!!'
                     self.lives-=1
                     break
-                self.score += 2*self.rewards["positive"]
+                self.score += 3*self.rewards["positive"]
+                self.distance +=0.5
 
             #is out out of the screen?
             if p.x < -p.width:
-                #original
-                #self._generatePipes(offset=self.width*0.2, pipe=p)
+                if self.gameMode=="easy":
+                    self._generatePipes(offset=self.width*0.9, pipe=p)
                 
-                #get the smallest and largest p in the rest of pipes
-                maxP = max(self.pipe_group, key=lambda p: p.x)
-                #print "maxP="+str(maxP.x)
-                minP = maxP
-                for pp in self.pipe_group:
-                    if pp.x < minP.x and pp.x > p.x:
-                        minP=pp
-                #print "minP="+str(minP.x)
-                #print "curretnP="+str(p.x)
+                else:
+                    #get the smallest and largest p in the rest of pipes
+                    maxP = max(self.pipe_group, key=lambda p: p.x)
+                    #print "maxP="+str(maxP.x)
+                    minP = maxP
+                    for pp in self.pipe_group:
+                        if pp.x < minP.x and pp.x > p.x:
+                            minP=pp
+                    #print "minP="+str(minP.x)
+                    #print "curretnP="+str(p.x)
                 
-                new_offset=max(minP.x, maxP.x-self.width) + self.pipe_width * np.random.choice([0] + range(self.min_dist_ratio, self.min_dist_ratio+self.avg_dist_ratio))
+                    new_offset=max(minP.x, maxP.x-self.width) + self.pipe_width * np.random.choice([0] + range(self.min_dist_ratio, self.min_dist_ratio+self.avg_dist_ratio))
                 
-                self._generatePipes(offset=new_offset, pipe=p)
+                    self._generatePipes(offset=new_offset, pipe=p)
     
     
 
@@ -540,3 +502,6 @@ class FlappyBird(base.PyGameWrapper):
         self.pipe_group.draw(self.screen)
         self.backdrop.update_draw_base(self.screen, dt)
         self.player.draw(self.screen)
+        #print_text(self.font1, 500, 0, "SCORE: " + str(self.score))
+        self.textImage = self.myfont.render("SCORE: " + str(self.distance), True, self.red)
+        self.screen.blit(self.textImage, (500,20))
