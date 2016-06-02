@@ -7,8 +7,8 @@ from pygame.constants import K_w
 from pygame.locals import *
 from .. import base
 
-
-class BirdPlayer(pygame.sprite.Sprite):
+#MinionPlayer: the agent called Minion
+class MinionPlayer(pygame.sprite.Sprite):
 
     def __init__(self, 
             SCREEN_WIDTH, SCREEN_HEIGHT, init_pos,
@@ -173,7 +173,7 @@ class Backdrop():
     def draw_background(self, screen):
         screen.blit(self.background_image, (0,0))
 
-class FlappyBird(base.PyGameWrapper):
+class RunningMinion(base.PyGameWrapper):
     """
     Used physics values from sourabhv's `clone`_.
 
@@ -246,15 +246,6 @@ class FlappyBird(base.PyGameWrapper):
     
     def _load_images(self):
         #preload and convert all the images so its faster when we reset
-        # self.images["player"] = {}
-        # for c in ["red", "blue", "yellow"]:
-        #     image_assets = [
-        #         os.path.join( self._asset_dir, "%sbird-upflap.png" % c ),
-        #         os.path.join( self._asset_dir, "%sbird-midflap.png" % c ),
-        #         os.path.join( self._asset_dir, "%sbird-downflap.png" % c ),
-        #     ]
-            
-        #     self.images["player"][c] = [ pygame.image.load(im).convert_alpha() for im in image_assets ]
         
         image_assets = [
             os.path.join( self._asset_dir, "minion-left.png"),
@@ -270,14 +261,7 @@ class FlappyBird(base.PyGameWrapper):
             path = os.path.join( self._asset_dir, "background-%s.jpg" % b )
 
             self.images["background"][b] = pygame.image.load(path).convert()
-
-        self.images["pipes"] = {} 
-        for c in ["red", "green"]:
-            path = os.path.join( self._asset_dir, "pipe-%s.png" % c )
-
-            self.images["pipes"][c] = {}
-            self.images["pipes"][c]["lower"] = pygame.image.load(path).convert_alpha()
-            self.images["pipes"][c]["upper"] = pygame.transform.rotate(self.images["pipes"][c]["lower"], 180)
+        
         
         self.images["obstacle"] = {}
         path = os.path.join(self._asset_dir, "obstacle.png")
@@ -297,7 +281,7 @@ class FlappyBird(base.PyGameWrapper):
                     )
 
         if self.player is None: 
-            self.player = BirdPlayer(
+            self.player = MinionPlayer(
                     self.width, 
                     self.height, 
                     self.init_pos, 
@@ -340,7 +324,6 @@ class FlappyBird(base.PyGameWrapper):
         
         else:
             pipe_offset_ratios =[0] + sorted(np.random.choice(range(self.min_dist_ratio, self.max_dist_ratio), 2, replace=False))
-            #pipe_offsets= pipe_offsets + [np.random.choice([pipe_offsets[2]+self.pipe_width] +[rr*self.pipe_width+max(pipe_offsets[0]+self.width, pipe_offsets[2]+self.min_dist) for rr in range(0,self.avg_dist/self.])]
             pipe_offset_ratios = pipe_offset_ratios + [np.random.choice([pipe_offset_ratios[2]+1] +[rr+max(pipe_offset_ratios[0]+self.max_dist_ratio, pipe_offset_ratios[2]+self.min_dist_ratio) for rr in range(0,self.avg_dist_ratio)])]
             pipe_offset_ratios = pipe_offset_ratios + [np.random.choice([pipe_offset_ratios[3]+1] +[rr+max(pipe_offset_ratios[1]+self.max_dist_ratio, pipe_offset_ratios[3]+self.min_dist_ratio) for rr in range(0,self.avg_dist_ratio)])]
         

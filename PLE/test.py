@@ -1,4 +1,4 @@
-from ple.games.jumpbird import FlappyBird
+from ple.games.jumpbird import RunningMinion
 from ple.games.waterworld import WaterWorld
 from ple import PLE
 import numpy as np
@@ -16,7 +16,7 @@ class TestAgent():
 				return self.actions[0]
 			return None
 
-game = FlappyBird()
+game = RunningMinion()
 #game = WaterWorld()
 p = PLE(game, fps=30, display_screen=True)
 agent = TestAgent(p.getActionSet())
