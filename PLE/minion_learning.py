@@ -1,6 +1,5 @@
 import os
 import logging
-# import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -110,7 +109,6 @@ def play_with_saved_agent(agent_file_path, agent_file_name, test_rounds=20):
 def agent_training(agent_file_path, agent_file_name, fig_path, num_steps_train_total = 5000):
     # training parameters
     num_epochs = 5
-    num_steps_train = 30000  # steps per epoch of training
     num_steps_train_epoch = num_steps_train_total/num_epochs  # steps per epoch of training
     num_steps_test = 100
     update_frequency = 4  # step frequency of model training/updates
@@ -249,8 +247,6 @@ def main():
     agent_file_path = '../results/'
     agent_file_name_base = 'my_agent'
     fig_path = '../figures/'
-    agent_training(agent_file_path, agent_file_name, fig_path)
-    play_with_saved_agent(agent_file_path, agent_file_name)
     training_rounds = range(100, 300, 100)
     avg_rewards = list()
 
