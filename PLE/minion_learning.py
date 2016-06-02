@@ -20,7 +20,7 @@ def process_state(state):
     state = np.array([state.values()])
     # state = state[0, 0:4]
     #max_values = np.array([288.0, 50.0, 288.0, 512.0, 512.0, 288, 512.0, 512.0])
-    max_values = np.array([512.0, 512.0, 512.0])
+    max_values = np.array([512.0, 512.0,512.0,512.0,512.0])
     state = state / max_values
     # print state
 
@@ -58,7 +58,7 @@ def plot_figure(fig_path, data, label, name):
 def save_agent(my_agent, agent_file_path, agent_file_name):
     my_agent.model.save_weights(os.path.join(agent_file_path, agent_file_name+'_weights.h5'), overwrite=True)
     with open(os.path.join(agent_file_path, agent_file_name+'.pkl'), 'wb') as handle:
-        cPickle.dump(my_agent, handle, pickle.HIGHEST_PROTOCOL)
+        cPickle.dump(my_agent, handle, cPickle.HIGHEST_PROTOCOL)
         # pickle.dump(my_agent, handle, pickle.HIGHEST_PROTOCOL)
 
 
@@ -93,7 +93,7 @@ def play_with_saved_agent(agent_file_path, agent_file_name):
 def agent_training(agent_file_path, agent_file_name, fig_path):
     # training parameters
     num_epochs = 5
-    num_steps_train = 5000  # steps per epoch of training
+    num_steps_train = 30000  # steps per epoch of training
     num_steps_test = 100
     update_frequency = 4  # step frequency of model training/updates
 
@@ -232,7 +232,7 @@ def main():
     agent_file_name = 'my_agent'
     fig_path = '../figures/'
 
-    # agent_training(agent_file_path, agent_file_name, fig_path)
+    agent_training(agent_file_path, agent_file_name, fig_path)
     play_with_saved_agent(agent_file_path, agent_file_name)
 
 

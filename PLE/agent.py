@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     # agent settings
     batch_size = 32
-    num_frames = 4  # number of frames in a 'state'
+    num_frames = 3  # number of frames in a 'state'
     frame_skip = 2
     epsilon = 0.15  # percentage of time we perform a random action, help exploration.
     epsilon_steps = 30000  # decay steps

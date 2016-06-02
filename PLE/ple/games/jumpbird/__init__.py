@@ -356,67 +356,74 @@ class FlappyBird(base.PyGameWrapper):
         sorted(pipes, key=lambda p: p[1])
 
         next_pipe = pipes[0][0]
-
-        state = {
-            "next_pipe_dist_to_player": next_pipe.x - self.player.pos_x,
-            "next_pipe_top_y": next_pipe.gap_start,
-            "next_pipe_bottom_y": next_pipe.gap_start+self.pipe_gap, 
-        }
-
-        return state
-
-
-    def getGameState_0(self):
-        """
-        Gets a non-visual state representation of the game.
-        
-        Returns
-        -------
-
-        dict
-            * player y position.
-            * players velocity.
-            * next pipe distance to player
-            * next pipe top y position
-            * next pipe bottom y position
-            * next next pipe distance to player
-            * next next pipe top y position
-            * next next pipe bottom y position
-
-
-            See code for structure.
-
-        """
-        pipes = []
-        #print len(self.pipe_group)
-        print 'new state'
-        for p in self.pipe_group:
-            print p.x, self.player.pos_x
-            if p.x > self.player.pos_x:
-                pipes.append((p, p.x - self.player.pos_x))
-              
-        sorted(pipes, key=lambda p: p[1])
         #print len(pipes)
-        next_pipe = pipes[1][0] 
-        next_next_pipe = pipes[0][0] 
-        
-        if next_next_pipe.x < next_pipe.x:
-            next_pipe, next_next_pipe = next_next_pipe, next_pipe
+        if len(pipes)<2:
+            next_next_pipe = next_pipe
+        else:
+            next_next_pipe = pipes[1][0]
 
         state = {
-            "player_y": self.player.pos_y,
-            "player_vel": self.player.vel,
-            
             "next_pipe_dist_to_player": next_pipe.x - self.player.pos_x,
             "next_pipe_top_y": next_pipe.gap_start,
-            "next_pipe_bottom_y": next_pipe.gap_start+self.pipe_gap, 
-            
+            "next_pipe_bottom_y": next_pipe.gap_start+self.pipe_gap,
             "next_next_pipe_dist_to_player": next_next_pipe.x - self.player.pos_x,
             "next_next_pipe_top_y": next_next_pipe.gap_start,
-            "next_next_pipe_bottom_y": next_next_pipe.gap_start+self.pipe_gap 
         }
-
+        #print state
         return state
+
+
+    # def getGameState_0(self):
+    #     """
+    #     Gets a non-visual state representation of the game.
+        
+    #     Returns
+    #     -------
+
+    #     dict
+    #         * player y position.
+    #         * players velocity.
+    #         * next pipe distance to player
+    #         * next pipe top y position
+    #         * next pipe bottom y position
+    #         * next next pipe distance to player
+    #         * next next pipe top y position
+    #         * next next pipe bottom y position
+
+
+    #         See code for structure.
+
+    #     """
+    #     pipes = []
+    #     #print len(self.pipe_group)
+    #     print 'new state'
+    #     for p in self.pipe_group:
+    #         print p.x, self.player.pos_x
+    #         if p.x > self.player.pos_x:
+    #             pipes.append((p, p.x - self.player.pos_x))
+              
+    #     sorted(pipes, key=lambda p: p[1])
+    #     #print len(pipes)
+    #     next_pipe = pipes[1][0] 
+    #     next_next_pipe = pipes[0][0] 
+        
+    #     if next_next_pipe.x < next_pipe.x:
+    #         next_pipe, next_next_pipe = next_next_pipe, next_pipe
+
+    #     state = {
+    #         "player_y": self.player.pos_y,
+    #         "player_vel": self.player.vel,
+            
+    #         "next_pipe_dist_to_player": next_pipe.x - self.player.pos_x,
+    #         "next_pipe_top_y": next_pipe.gap_start,
+    #         "next_pipe_bottom_y": next_pipe.gap_start+self.pipe_gap, 
+            
+    #         "next_next_pipe_dist_to_player": next_next_pipe.x - self.player.pos_x,
+    #         "next_next_pipe_top_y": next_next_pipe.gap_start,
+    #         "next_next_pipe_bottom_y": next_next_pipe.gap_start+self.pipe_gap 
+    #     }
+
+    #     return state
 
     def getScore(self):
         return self.score
@@ -527,7 +534,7 @@ class FlappyBird(base.PyGameWrapper):
         if self.lives <= 0:
             self.score += self.rewards["loss"]
         if self.player.flapped==True:
-            self.score += self.rewards["negative"]*0.2
+            self.score += self.rewards["negative"]*0.3
         #draw part
         self.backdrop.draw_background(self.screen)
         self.pipe_group.draw(self.screen)
