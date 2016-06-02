@@ -4,6 +4,7 @@ import numpy as np
 
 import pygame
 from pygame.constants import K_w
+from pygame.locals import *
 from .. import base
 
 
@@ -212,7 +213,13 @@ class FlappyBird(base.PyGameWrapper):
 
         #so we can preload images
         pygame.display.set_mode((1,1), pygame.NOFRAME)
-        
+        pygame.display.set_caption("Running Minion")
+
+        self.white  = 255,255,255
+        self.red = 220,20,60
+        pygame.font.init()
+        self.myfont = pygame.font.Font(None, 60)
+
         self._dir_ = os.path.dirname(os.path.abspath(__file__))
         self._asset_dir = os.path.join( self._dir_, "assets/" )
         self._load_images()
@@ -230,7 +237,7 @@ class FlappyBird(base.PyGameWrapper):
         # self.pipe_min = int(self.pipe_gap/4)  #25 Larger number indicates smaller pipe
         # self.pipe_max = int(self.height*0.79*0.6 - self.pipe_gap/2)#242 - 50
 
-        self.pipe_min = self.height*0.16
+        self.pipe_min = self.height*0.18
         self.pipe_max = self.height*0.25
 
         self.backdrop = None
@@ -345,6 +352,7 @@ class FlappyBird(base.PyGameWrapper):
             self._generatePipes(offset=self.pipe_offsets[i], pipe=p)
 
         self.score = 0.0
+        self.distance=0.0
         self.lives = 1
         self.tick = 0
 
@@ -361,67 +369,22 @@ class FlappyBird(base.PyGameWrapper):
         sorted(pipes, key=lambda p: p[1])
 
         next_pipe = pipes[0][0]
-
-        state = {
-            "next_pipe_dist_to_player": next_pipe.x - self.player.pos_x,
-            "next_pipe_top_y": next_pipe.gap_start,
-            "next_pipe_bottom_y": next_pipe.gap_start+self.pipe_gap, 
-        }
-
-        return state
-
-
-    def getGameState_0(self):
-        """
-        Gets a non-visual state representation of the game.
-        
-        Returns
-        -------
-
-        dict
-            * player y position.
-            * players velocity.
-            * next pipe distance to player
-            * next pipe top y position
-            * next pipe bottom y position
-            * next next pipe distance to player
-            * next next pipe top y position
-            * next next pipe bottom y position
-
-
-            See code for structure.
-
-        """
-        pipes = []
-        #print len(self.pipe_group)
-        print 'new state'
-        for p in self.pipe_group:
-            print p.x, self.player.pos_x
-            if p.x > self.player.pos_x:
-                pipes.append((p, p.x - self.player.pos_x))
-              
-        sorted(pipes, key=lambda p: p[1])
         #print len(pipes)
-        next_pipe = pipes[1][0] 
-        next_next_pipe = pipes[0][0] 
-        
-        if next_next_pipe.x < next_pipe.x:
-            next_pipe, next_next_pipe = next_next_pipe, next_pipe
+        if len(pipes)<2:
+            next_next_pipe = next_pipe
+        else:
+            next_next_pipe = pipes[1][0]
 
         state = {
-            "player_y": self.player.pos_y,
-            "player_vel": self.player.vel,
-            
             "next_pipe_dist_to_player": next_pipe.x - self.player.pos_x,
             "next_pipe_top_y": next_pipe.gap_start,
-            "next_pipe_bottom_y": next_pipe.gap_start+self.pipe_gap, 
-            
+            "next_pipe_bottom_y": next_pipe.gap_start+self.pipe_gap,
             "next_next_pipe_dist_to_player": next_next_pipe.x - self.player.pos_x,
             "next_next_pipe_top_y": next_next_pipe.gap_start,
-            "next_next_pipe_bottom_y": next_next_pipe.gap_start+self.pipe_gap 
         }
-
+        #print state
         return state
+
 
     def getScore(self):
         return self.score
@@ -469,7 +432,6 @@ class FlappyBird(base.PyGameWrapper):
         dt = dt / 1000.0
 
         self.score += self.rewards["tick"]
-
         #handle player movement
         self._handle_player_events()
         #cc=0
@@ -495,7 +457,8 @@ class FlappyBird(base.PyGameWrapper):
                     #print 'hit!!'
                     self.lives-=1
                     break
-                self.score += 2*self.rewards["positive"]
+                self.score += 3*self.rewards["positive"]
+                self.distance +=0.5
 
             #is out out of the screen?
             if p.x < -p.width:
@@ -533,9 +496,12 @@ class FlappyBird(base.PyGameWrapper):
         if self.lives <= 0:
             self.score += self.rewards["loss"]
         if self.player.flapped==True:
-            self.score += self.rewards["negative"]*0.2
+            self.score += self.rewards["negative"]*0.3
         #draw part
         self.backdrop.draw_background(self.screen)
         self.pipe_group.draw(self.screen)
         self.backdrop.update_draw_base(self.screen, dt)
         self.player.draw(self.screen)
+        #print_text(self.font1, 500, 0, "SCORE: " + str(self.score))
+        self.textImage = self.myfont.render("SCORE: " + str(self.distance), True, self.red)
+        self.screen.blit(self.textImage, (500,20))
