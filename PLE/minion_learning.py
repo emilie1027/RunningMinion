@@ -130,9 +130,10 @@ def agent_training(agent_file_path, agent_file_name, fig_path, num_steps_train_t
     env.init()
 
     # Logging configuration and figure plotting
-    logging.basicConfig(filename='../log/learning_'+str(num_steps_train_total)+'.log', filemode='w',
+    logging.basicConfig(filename='../learning.log', filemode='w',
                         level=logging.DEBUG, format='%(levelname)s:%(message)s')
-    logging.info('Training started.\n')
+    logging.info('========================================================')
+    logging.info('Training started for total training steps: '+str(num_steps_train_total)+'.\n')
     learning_rewards = list()
     testing_rewards = list()
 
@@ -214,7 +215,7 @@ def agent_training(agent_file_path, agent_file_name, fig_path, num_steps_train_t
         logging.info("Test Epoch {:02d}: Best Reward {:0.3f} | Avg. Reward {:0.3f}\n"
                      .format(epoch, np.max(rewards), np.sum(rewards) / num_episodes))
 
-    logging.info("\nTraining complete.")
+    logging.info("Training complete.\n\n")
     plot_figure(fig_path, learning_rewards, 'reward', 'reward_in_training', num_steps_train_total)
     plot_figure(fig_path, testing_rewards, 'reward', 'reward_in_testing', num_steps_train_total)
 
