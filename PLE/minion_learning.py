@@ -252,9 +252,9 @@ def main():
     #training_rounds =[50000]
     avg_rewards = list()
 
-    for num_steps_train_total in training_rounds:
-        agent_file_name = agent_file_name_base+'_'+str(num_steps_train_total)
-        agent_training(agent_file_path, agent_file_name, fig_path, num_steps_train_total)
+    # for num_steps_train_total in training_rounds:
+    #     agent_file_name = agent_file_name_base+'_'+str(num_steps_train_total)
+    #     agent_training(agent_file_path, agent_file_name, fig_path, num_steps_train_total)
 
     for num_steps_train_total in training_rounds:
         agent_file_name = agent_file_name_base+'_'+str(num_steps_train_total)
