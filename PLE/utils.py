@@ -25,7 +25,6 @@ class DQNAgent():
         self.lr = lr
         self.discount = discount
         self.rng = rng
-
         if optimizer == "adam":
             opt = Adam(lr=self.lr)
         elif optimizer == "sgd":
@@ -89,8 +88,14 @@ class DQNAgent():
             model is expecting a batch_size worth of data. We only have one states worth of
             samples so we make an empty batch and set our state as the first row.
         """
-        states = np.zeros(self.input_shape)
+        states = np.zeros(self.input_shape) # 12
+        # print "inpu_shape",self.input_shape
+        # print "states_shape",states.shape
+        # print "state_shape",state.shape
+        # print "self.state_shape",self.state_shape
+        # print len(states)
         states[0, ...] = state.reshape(self.state_shape)
+
 
         return self.model.predict(states)[0]  # only want the first value
 
@@ -106,11 +111,12 @@ class DQNAgent():
 
     def act(self, state, epsilon=1.0):
         self.state.append(state)
-
+        # print "num_frames: ", self.num_frames
+        # print len(state),len(self.state)
         action = self.rng.randint(0, self.num_actions)
         if len(self.state) == self.num_frames:  # we havent seen enough frames
             _state = np.array(self.state)
-
+            # print _state
             if self.rng.rand() > epsilon:
                 action = self._best_action(_state)  # exploit
 
