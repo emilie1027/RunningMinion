@@ -336,7 +336,7 @@ class FlappyBird(base.PyGameWrapper):
         self.avg_dist_ratio = 4
         
         if self.gameMode=="easy":
-            self.pipe_offsets = [-75, -75+self.width*0.5,  -75+self.width*1.2,  -75+self.width*1.3,  -75+self.width*2]
+            self.pipe_offsets = [-75, -75+self.width*0.5,  -75+self.width*1.0,  -75+self.width*1.5,  -75+self.width*2]
         
         else:
             pipe_offset_ratios =[0] + sorted(np.random.choice(range(self.min_dist_ratio, self.max_dist_ratio), 2, replace=False))
@@ -378,9 +378,7 @@ class FlappyBird(base.PyGameWrapper):
         state = {
             "next_pipe_dist_to_player": next_pipe.x - self.player.pos_x,
             "next_pipe_top_y": next_pipe.gap_start,
-            "next_pipe_bottom_y": next_pipe.gap_start+self.pipe_gap,
-            "next_next_pipe_dist_to_player": next_next_pipe.x - self.player.pos_x,
-            "next_next_pipe_top_y": next_next_pipe.gap_start,
+            "next_pipe_bottom_y": next_pipe.gap_start+self.pipe_gap
         }
         #print state
         return state
@@ -452,12 +450,12 @@ class FlappyBird(base.PyGameWrapper):
             # if cc%3==0:
             #     print self.player.pos_y, p.y_top
             #     cc+=1
-            if (p.x - p.width/2 -8) <= self.player.pos_x < (p.x - p.width/2 + 8):
+            if (p.x - p.width/2 -7) <= self.player.pos_x < (p.x - p.width/2 + 7):
                 if self.player.pos_y + self.player.height/2 > p.y_top:
                     #print 'hit!!'
                     self.lives-=1
                     break
-                self.score += 3*self.rewards["positive"]
+                self.score += 2*self.rewards["positive"]
                 self.distance +=0.5
 
             #is out out of the screen?
@@ -496,7 +494,7 @@ class FlappyBird(base.PyGameWrapper):
         if self.lives <= 0:
             self.score += self.rewards["loss"]
         if self.player.flapped==True:
-            self.score += self.rewards["negative"]*0.3
+            self.score += self.rewards["negative"]*0.2
         #draw part
         self.backdrop.draw_background(self.screen)
         self.pipe_group.draw(self.screen)

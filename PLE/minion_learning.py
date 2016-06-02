@@ -19,7 +19,7 @@ def process_state(state):
     state = np.array([state.values()])
     # state = state[0, 0:4]
     #max_values = np.array([288.0, 50.0, 288.0, 512.0, 512.0, 288, 512.0, 512.0])
-    max_values = np.array([512.0, 512.0,512.0,512.0,512.0])
+    max_values = np.array([512.0, 512.0,512.0])
     state = state / max_values
     # print state
 
@@ -29,7 +29,7 @@ def process_state(state):
 def init_agent(env):
     # agent settings
     batch_size = 32
-    num_frames = 4  # number of frames in a 'state'
+    num_frames = 8  # number of frames in a 'state'
     frame_skip = 2
     lr = 0.01
     discount = 0.95  # discount factor
@@ -248,7 +248,8 @@ def main():
     agent_file_path = '../results/'
     agent_file_name_base = 'my_agent'
     fig_path = '../figures/'
-    training_rounds = range(100, 300, 100)
+    training_rounds =[20000]
+    #training_rounds =[50000]
     avg_rewards = list()
 
     for num_steps_train_total in training_rounds:
