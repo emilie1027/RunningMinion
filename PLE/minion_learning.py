@@ -1,5 +1,6 @@
 import os
 import logging
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -33,7 +34,7 @@ def init_agent(env):
     frame_skip = 2
     lr = 0.01
     discount = 0.95  # discount factor
-    rng = np.random.RandomState(24)
+    rng = np.random.RandomState(int(time.time()))
 
     # my_agent = naive.NaiveAgent(allowed_actions=env.getActionSet())
     my_agent = agent.Agent(env, batch_size, num_frames, frame_skip, lr, discount, rng, optimizer="sgd_nesterov")

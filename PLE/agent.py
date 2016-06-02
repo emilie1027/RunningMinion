@@ -1,5 +1,6 @@
 # thanks to @edersantana and @fchollet for suggestions & help.
 
+import time
 import numpy as np
 from ple import PLE  # our environment
 from ple.games.catcher import Catcher
@@ -56,7 +57,7 @@ class Agent(DQNAgent):
         self.frame_skip = frame_skip
         self.lr = lr
         self.discount = discount
-        self.rng = rng
+        self.rng = np.random.RandomState(int(time.time()))
 
         self.optimizer = optimizer
         self.frame_dim = frame_dim
