@@ -135,8 +135,8 @@ def agent_training(agent_file_path, agent_file_name, fig_path, num_steps_train_t
                         level=logging.DEBUG, format='%(levelname)s:%(message)s')
     logging.info('========================================================')
     logging.info('Training started for total training steps: '+str(num_steps_train_total)+'.\n')
-    learning_rewards = list()
-    testing_rewards = list()
+    learning_rewards = [0]
+    testing_rewards = [0]
 
     for epoch in range(1, num_epochs + 1):
         steps, num_episodes = 0, 0
@@ -162,7 +162,9 @@ def agent_training(agent_file_path, agent_file_name, fig_path, num_steps_train_t
 
                 episode_reward += reward
                 steps += 1
-                learning_rewards.append(reward)
+
+            if steps < num_steps_train_epoch:
+                learning_rewards.append(episode_reward)
 
             if num_episodes % 5 == 0:
                 # print "Episode {:01d}: Reward {:0.1f}".format(num_episodes, episode_reward)
@@ -196,7 +198,7 @@ def agent_training(agent_file_path, agent_file_name, fig_path, num_steps_train_t
                 reward, action = my_agent.act(state, epsilon=0.05)
 
                 episode_reward += reward
-                testing_rewards.append(reward)
+                testing_rewards.append(testing_rewards[-1]+reward)
                 steps += 1
 
                 # done watching after 500 steps.
@@ -249,13 +251,13 @@ def main():
     agent_file_path = '../results/'
     agent_file_name_base = 'my_agent'
     fig_path = '../figures/'
-    training_rounds =[20000]
+    training_rounds = [20000]
     #training_rounds =[50000]
     avg_rewards = list()
 
-    # for num_steps_train_total in training_rounds:
-    #     agent_file_name = agent_file_name_base+'_'+str(num_steps_train_total)
-    #     agent_training(agent_file_path, agent_file_name, fig_path, num_steps_train_total)
+    for num_steps_train_total in training_rounds:
+        agent_file_name = agent_file_name_base+'_'+str(num_steps_train_total)
+        agent_training(agent_file_path, agent_file_name, fig_path, num_steps_train_total)
 
     for num_steps_train_total in training_rounds:
         agent_file_name = agent_file_name_base+'_'+str(num_steps_train_total)
