@@ -44,21 +44,32 @@ def init_agent(env):
     return my_agent
 
 
-def plot_figure(fig_path, data, label, name):
+def plot_figure(fig_path, data, label, name, num_steps_train):
+    plt.figure()
     plt.plot(data)
 
     plt.xlabel('episode')
     plt.ylabel(label)
     # plt.title('title')
     # plt.grid(True)
-    plt.savefig(os.path.join(fig_path, name+'.png'))
+    plt.savefig(os.path.join(fig_path, name+'_'+str(num_steps_train)+'.png'))
     # plt.show()
+    plt.close()
+
+
+def plot_result(fig_path, training_rounds, avg_rewards):
+    plt.figure()
+    plt.plot(training_rounds, avg_rewards)
+    plt.xlabel('training rounds')
+    plt.ylabel('average reward')
+    plt.savefig(os.path.join(fig_path, 'testing.png'))
+    plt.close()
 
 
 def save_agent(my_agent, agent_file_path, agent_file_name):
     my_agent.model.save_weights(os.path.join(agent_file_path, agent_file_name+'_weights.h5'), overwrite=True)
     with open(os.path.join(agent_file_path, agent_file_name+'.pkl'), 'wb') as handle:
-        cPickle.dump(my_agent, handle, pickle.HIGHEST_PROTOCOL)
+        cPickle.dump(my_agent, handle, cPickle.HIGHEST_PROTOCOL)
         # pickle.dump(my_agent, handle, pickle.HIGHEST_PROTOCOL)
 
 
@@ -72,13 +83,16 @@ def load_agent(env, agent_file_path, agent_file_name):
     return my_agent
 
 
-def play_with_saved_agent(agent_file_path, agent_file_name):
+def play_with_saved_agent(agent_file_path, agent_file_name, test_rounds=20):
     game = FlappyBird()
     env = PLE(game, fps=30, display_screen=True, force_fps=True, state_preprocessor=process_state)
     my_agent = load_agent(env, agent_file_path, agent_file_name)
     env.init()
 
-    while True:
+    print "Testing model:", agent_file_name
+
+    total_reward = 0.0
+    for _ in range(test_rounds):
         my_agent.start_episode()
         episode_reward = 0.0
         while env.game_over() == False:
@@ -87,13 +101,16 @@ def play_with_saved_agent(agent_file_path, agent_file_name):
             episode_reward += reward
 
         print "Agent score {:0.1f} reward for episode.".format(episode_reward)
+        total_reward += episode_reward
         my_agent.end_episode()
 
+    return total_reward/test_rounds
 
-def agent_training(agent_file_path, agent_file_name, fig_path):
+
+def agent_training(agent_file_path, agent_file_name, fig_path, num_steps_train_total = 5000):
     # training parameters
     num_epochs = 5
-    num_steps_train = 5000  # steps per epoch of training
+    num_steps_train_epoch = num_steps_train_total/num_epochs  # steps per epoch of training
     num_steps_test = 100
     update_frequency = 4  # step frequency of model training/updates
 
@@ -114,7 +131,7 @@ def agent_training(agent_file_path, agent_file_name, fig_path):
     env.init()
 
     # Logging configuration and figure plotting
-    logging.basicConfig(filename='../learning.log', filemode='w',
+    logging.basicConfig(filename='../log/learning_'+str(num_steps_train_total)+'.log', filemode='w',
                         level=logging.DEBUG, format='%(levelname)s:%(message)s')
     logging.info('Training started.\n')
     learning_rewards = list()
@@ -126,11 +143,11 @@ def agent_training(agent_file_path, agent_file_name, fig_path):
         env.display_screen = False
 
         # training loop
-        while steps < num_steps_train:
+        while steps < num_steps_train_epoch:
             episode_reward = 0.0
             my_agent.start_episode()
 
-            while env.game_over() == False and steps < num_steps_train:
+            while env.game_over() == False and steps < num_steps_train_epoch:
                 state = env.getGameState()
                 reward, action = my_agent.act(state, epsilon=epsilon)
                 memory.add([state, action, reward, env.game_over()])
@@ -199,8 +216,8 @@ def agent_training(agent_file_path, agent_file_name, fig_path):
                      .format(epoch, np.max(rewards), np.sum(rewards) / num_episodes))
 
     logging.info("\nTraining complete.")
-    plot_figure(fig_path, learning_rewards, 'reward', 'reward_in_training')
-    plot_figure(fig_path, testing_rewards, 'reward', 'reward_in_testing')
+    plot_figure(fig_path, learning_rewards, 'reward', 'reward_in_training', num_steps_train_total)
+    plot_figure(fig_path, testing_rewards, 'reward', 'reward_in_testing', num_steps_train_total)
 
     save_agent(my_agent, agent_file_path, agent_file_name)
 
@@ -228,12 +245,23 @@ def main_naive():
 
 
 def main():
-    agent_file_path = '../'
-    agent_file_name = 'my_agent'
+    agent_file_path = '../results/'
+    agent_file_name_base = 'my_agent'
     fig_path = '../figures/'
 
-    # agent_training(agent_file_path, agent_file_name, fig_path)
-    play_with_saved_agent(agent_file_path, agent_file_name)
+    training_rounds = range(100, 300, 100)
+    avg_rewards = list()
+
+    for num_steps_train_total in training_rounds:
+        agent_file_name = agent_file_name_base+'_'+str(num_steps_train_total)
+        agent_training(agent_file_path, agent_file_name, fig_path, num_steps_train_total)
+
+    for num_steps_train_total in training_rounds:
+        agent_file_name = agent_file_name_base+'_'+str(num_steps_train_total)
+        avg_reward = play_with_saved_agent(agent_file_path, agent_file_name, 3)
+        avg_rewards.append(avg_reward)
+
+    plot_result(fig_path, training_rounds, avg_rewards)
 
 
 if __name__ == '__main__':
