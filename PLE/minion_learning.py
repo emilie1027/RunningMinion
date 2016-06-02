@@ -29,12 +29,13 @@ def process_state(state):
 
 def init_agent(env):
     # agent settings
-    batch_size = 32
-    num_frames = 8  # number of frames in a 'state'
+    batch_size = 20
+    num_frames = 1  # number of frames in a 'state'
     frame_skip = 2
     lr = 0.01
     discount = 0.95  # discount factor
-    rng = np.random.RandomState(int(time.time()))
+    # rng = np.random.RandomState(int(time.time()))
+    rng = np.random.RandomState(24)
 
     # my_agent = naive.NaiveAgent(allowed_actions=env.getActionSet())
     my_agent = agent.Agent(env, batch_size, num_frames, frame_skip, lr, discount, rng, optimizer="sgd_nesterov")
@@ -112,16 +113,16 @@ def agent_training(agent_file_path, agent_file_name, fig_path, num_steps_train_t
     num_epochs = 5
     num_steps_train_epoch = num_steps_train_total/num_epochs  # steps per epoch of training
     num_steps_test = 100
-    update_frequency = 4  # step frequency of model training/updates
+    update_frequency = 10  # step frequency of model training/updates
 
     epsilon = 0.15  # percentage of time we perform a random action, help exploration.
-    epsilon_steps = 30000  # decay steps
+    epsilon_steps = 1000  # decay steps
     epsilon_min = 0.1
     epsilon_rate = (epsilon - epsilon_min) / epsilon_steps
 
     # memory settings
-    max_memory_size = 100000
-    min_memory_size = 1000  # number needed before model training starts
+    max_memory_size = 10000
+    min_memory_size = 60  # number needed before model training starts
 
     game = FlappyBird()
     env = PLE(game, fps=30, display_screen=True, force_fps=True, state_preprocessor=process_state)
@@ -209,6 +210,9 @@ def agent_training(agent_file_path, agent_file_name, fig_path, num_steps_train_t
                 # print "Episode {:01d}: Reward {:0.1f}".format(num_episodes, episode_reward)
                 logging.info("Episode {:01d}: Reward {:0.1f}".format(num_episodes, episode_reward))
 
+            if steps < num_steps_test:
+                testing_rewards.append(episode_reward)
+
             rewards.append(episode_reward)
             num_episodes += 1
             my_agent.end_episode()
@@ -251,8 +255,8 @@ def main():
     agent_file_path = '../results/'
     agent_file_name_base = 'my_agent'
     fig_path = '../figures/'
-    training_rounds = [20000]
-    #training_rounds =[50000]
+    # training_rounds = [1000, 5000, 10000, 25000]
+    training_rounds =[5000]
     avg_rewards = list()
 
     for num_steps_train_total in training_rounds:
